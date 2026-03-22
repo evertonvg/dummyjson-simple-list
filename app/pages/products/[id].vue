@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useQuery } from '@tanstack/vue-query'
 import { getProductRequest } from '~/services/getProduct';
@@ -15,6 +15,15 @@ const { data, isLoading } = useQuery<ProductResponse>({
   queryKey: ['product', route.params.id],
   queryFn: () => getProductRequest(route.params.id as string),
 })
+
+// watch para reagir quando os dados chegarem
+watch(
+  data,
+  () => {
+    mainImage.value = data.value?.images[0] || ''
+  },
+  { immediate: true }
+)
 
 </script>
 <template>
@@ -32,7 +41,7 @@ const { data, isLoading } = useQuery<ProductResponse>({
         <!-- Coluna da imagem -->
         <div class="column is-half">
           <figure class="image is-4by3 mb-4">
-            <img :src="data?.thumbnail" :alt="data?.title" class="product-main-image" />
+            <img :src="mainImage" :alt="data?.title" class="product-main-image" />
           </figure>
 
           <!-- Miniaturas -->
