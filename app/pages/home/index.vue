@@ -1,14 +1,21 @@
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query'
-import { api } from '~/services/api'
+import { getProductsRequest } from '~/services/getProducts'
+import type { ProductsResponse } from '@/types/products'
+import ProductGrid from '~/components/ProductGrid.vue'
+import SkeletonGrid from '~/components/SkeletonGrid.vue'
 
 definePageMeta({
   middleware: 'auth'
-})
+}) 
+ 
+const limit = 12
+const skip = ref(0)
+const page = ref(0)
 
-const { data, isLoading } = useQuery({
-  queryKey: ['products'],
-  queryFn: () => api('/products')
+const { data, isLoading, refetch  } = useQuery<ProductsResponse>({
+  queryKey: computed(() =>['products',limit,skip.value]),
+  queryFn: () => getProductsRequest(limit, skip.value),
 })
 </script>
 
@@ -17,14 +24,26 @@ const { data, isLoading } = useQuery({
     <div class="container">
       <h1 class="title">Produtos</h1>
 
-      <p v-if="isLoading">Carregando...</p>
-
-      <section v-else  class="section">
       <div class="container">
-        <h1 class="title">Produtos</h1>
-        <ProductGrid :products="data?.products" />
+        <!-- Skeleton enquanto carrega -->
+        <SkeletonGrid v-if="isLoading" />
+
+        <!-- Grid de produtos quando carregou -->
+        <ProductGrid v-else :products="data?.products ?? []" />
+        
+        <!-- Paginação -->
+        <Pagination
+          v-if="data"
+          :current-page="page"
+          :total-items="data.total"
+          :per-page="limit"
+          @update:page="(val) => {
+            page = val
+            skip = val * limit
+            refetch()
+          }"
+        />
       </div>
-    </section>
 
 
     </div>

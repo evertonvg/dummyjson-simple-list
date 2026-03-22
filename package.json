@@ -10,6 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@nuxt/image": "^2.0.0",
     "@pinia/nuxt": "^0.11.3",
     "@tanstack/vue-query": "^5.94.5",
     "bulma": "^1.0.4",

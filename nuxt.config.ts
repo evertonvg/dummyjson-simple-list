@@ -1,5 +1,5 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
 import { fileURLToPath } from 'url'
+
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
@@ -10,5 +10,20 @@ export default defineNuxtConfig({
   },
   modules: [
     '@pinia/nuxt',
+    '@nuxt/image',
   ],
+  image: {
+    // Permitir imagens externas
+    domains: ['cdn.dummyjson.com'],
+    // Lazy loading padrão
+    presets: {
+      default: {
+        format: 'webp',
+        quality: 80,
+        modifiers: {
+          loading: 'lazy'
+        }
+      }
+    }
+  }
 })

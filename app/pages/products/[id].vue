@@ -1,60 +1,29 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useRoute } from 'vue-router'
+import { useQuery } from '@tanstack/vue-query'
+import { getProductRequest } from '~/services/getProduct';
+import type { ProductResponse } from '@/types/product';
 
-interface Review {
-  rating: number
-  comment: string
-  reviewerName: string
-  reviewerEmail: string
-}
-
-interface Product {
-  id: number
-  title: string
-  description: string
-  brand: string
-  price: number
-  discountPercentage?: number
-  rating: number
-  images: string[]
-  thumbnail: string
-  stock: number
-  availabilityStatus: string
-  warrantyInformation: string
-  shippingInformation: string
-  reviews: Review[]
-}
-
-const route = useRoute()
-const product = ref<Product>({
-  id: 0,
-  title: '',
-  description: '',
-  brand: '',
-  price: 0,
-  discountPercentage: 0,
-  rating: 0,
-  images: [],
-  thumbnail: '',
-  stock: 0,
-  availabilityStatus: '',
-  warrantyInformation: '',
-  shippingInformation: '',
-  reviews: [],
+definePageMeta({
+  middleware: 'auth'
 })
-
+const route = useRoute()
 const mainImage = ref('')
 
-onMounted(async () => {
-  const res = await fetch(`https://dummyjson.com/products/${route.params.id}`)
-  const data = await res.json()
-  product.value = data
-  mainImage.value = product.value.images[0] || product.value.thumbnail
+const { data, isLoading } = useQuery<ProductResponse>({
+  queryKey: ['product', route.params.id],
+  queryFn: () => getProductRequest(route.params.id as string),
 })
+
 </script>
 <template>
-  <section class="section">
+  <section class="section" v-if="isLoading">
+    <div class="container">
+      <h2>Carregando...</h2>
+    </div>
+  </section>
+  <section class="section" else>
     <div class="container">
       <!-- Voltar -->
       <NuxtLink to="/home" class="button is-light mb-4">← Voltar</NuxtLink>
@@ -63,16 +32,16 @@ onMounted(async () => {
         <!-- Coluna da imagem -->
         <div class="column is-half">
           <figure class="image is-4by3 mb-4">
-            <img :src="mainImage" :alt="product.title" class="product-main-image" />
+            <img :src="data?.thumbnail" :alt="data?.title" class="product-main-image" />
           </figure>
 
           <!-- Miniaturas -->
           <div class="columns is-mobile is-multiline">
-            <div class="column is-3" v-for="img in product.images" :key="img">
+            <div class="column is-3" v-for="img in data?.images" :key="img">
               <figure class="image is-square">
                 <img
                   :src="img"
-                  :alt="product.title"
+                  :alt="data?.title"
                   class="thumbnail"
                   @click="mainImage = img"
                 />
@@ -83,34 +52,34 @@ onMounted(async () => {
 
         <!-- Coluna de informações -->
         <div class="column is-half">
-          <h1 class="title is-3">{{ product.title }}</h1>
-          <h2 class="subtitle is-5">{{ product.brand }}</h2>
+          <h1 class="title is-3">{{ data?.title }}</h1>
+          <h2 class="subtitle is-5">{{ data?.brand }}</h2>
 
           <!-- Preço -->
           <p class="is-size-4 has-text-weight-bold">
-            ${{ product.price.toFixed(2) }}
+            ${{ data?.price.toFixed(2) }}
             <span
-              v-if="product.discountPercentage"
+              v-if="data?.discountPercentage"
               class="tag is-danger is-light ml-2"
             >
-              -{{ product.discountPercentage.toFixed(0) }}%
+              -{{ data?.discountPercentage.toFixed(0) }}%
             </span>
           </p>
 
           <!-- Avaliação -->
           <p class="mb-3">
             <span v-for="n in 5" :key="n" class="has-text-warning">
-              <i class="fas" :class="n <= Math.round(product.rating) ? 'fa-star' : 'fa-star-o'"></i>
+              <i class="fas" :class="n <= Math.round(data?.rating ?? 0) ? 'fa-star' : 'fa-star-o'"></i>
             </span>
-            <span class="ml-2">({{ product.reviews.length }} avaliações)</span>
+            <span class="ml-2">({{ data?.reviews.length }} avaliações)</span>
           </p>
 
           <!-- Estoque, envio e garantia -->
           <div class="box mb-4">
-            <p><strong>Status:</strong> {{ product.availabilityStatus }}</p>
-            <p><strong>Stock:</strong> {{ product.stock }}</p>
-            <p><strong>Garantia:</strong> {{ product.warrantyInformation }}</p>
-            <p><strong>Envio:</strong> {{ product.shippingInformation }}</p>
+            <p><strong>Status:</strong> {{ data?.availabilityStatus }}</p>
+            <p><strong>Stock:</strong> {{ data?.stock }}</p>
+            <p><strong>Garantia:</strong> {{ data?.warrantyInformation }}</p>
+            <p><strong>Envio:</strong> {{ data?.shippingInformation }}</p>
           </div>
 
           <!-- Botões -->
@@ -124,13 +93,13 @@ onMounted(async () => {
       <!-- Descrição -->
       <div class="mt-6">
         <h3 class="title is-5">Descrição do Produto</h3>
-        <p>{{ product.description }}</p>
+        <p>{{ data?.description }}</p>
       </div>
 
       <!-- Reviews -->
       <div class="mt-6">
         <h3 class="title is-5">Avaliações</h3>
-        <div v-for="review in product.reviews" :key="review.reviewerEmail" class="box">
+        <div v-for="review in data?.reviews" :key="review.reviewerEmail" class="box">
           <p>
             <strong>{{ review.reviewerName }}</strong> 
             <span class="ml-2">

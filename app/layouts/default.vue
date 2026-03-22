@@ -14,7 +14,7 @@ const logout = () => {
 </script>
 
 <template>
-  <div>
+  <main class="layout">
     <nav class="navbar is-dark">
       <div class="navbar-brand">
         <span class="navbar-item">Dummy Json Tests</span>
@@ -34,5 +34,6 @@ const logout = () => {
       <slot />
     </main>
     <Toaster position="bottom-right" />
-  </div>
+  </main>
+  <Footer />
 </template>

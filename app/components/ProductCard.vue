@@ -1,9 +1,23 @@
+<script setup lang="ts">
+interface Product {
+  id: number
+  title: string
+  price: number
+  rating: number
+  brand: string
+  thumbnail: string
+}
+defineProps<{
+  product: Product
+}>()
+
+</script>
 <template>
     <NuxtLink :to="`/products/${product.id}`">
     <div class="card" style="cursor:pointer;">
     <div class="card-image">
       <figure class="image is-4by3">
-        <img :src="product.thumbnail" :alt="product.title" />
+        <NuxtImage :src="product.thumbnail" :alt="product.title" />      
       </figure>
     </div>
     <div class="card-content">
@@ -23,25 +37,7 @@
   </NuxtLink>
 </template>
 
-<script setup lang="ts">
-import { useRouter } from 'vue-router'
 
-interface Product {
-  id: number
-  title: string
-  price: number
-  rating: number
-  brand: string
-  thumbnail: string
-}
-
-defineProps<{
-  product: Product
-}>()
-
-
-
-</script>
 
 <style scoped>
 .card {
