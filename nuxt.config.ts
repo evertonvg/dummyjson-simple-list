@@ -11,19 +11,20 @@ export default defineNuxtConfig({
   modules: [
     '@pinia/nuxt',
     '@nuxt/image',
+    '@vueuse/nuxt',
   ],
   image: {
     // Permitir imagens externas
     domains: ['cdn.dummyjson.com'],
     // Lazy loading padrão
-    presets: {
-      default: {
-        format: 'webp',
-        quality: 80,
-        modifiers: {
-          loading: 'lazy'
-        }
-      }
-    }
+    // presets: {
+    //   default: {
+    //     format: 'webp',
+    //     quality: 80,
+    //     modifiers: {
+    //       loading: 'lazy'
+    //     }
+    //   }
+    // }
   }
 })

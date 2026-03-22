@@ -17,8 +17,11 @@ defineProps<{
     <div class="card" style="cursor:pointer;">
     <div class="card-image">
       <figure class="image is-4by3">
-        <NuxtImage :src="product.thumbnail" :alt="product.title" />      
+        <img :src="product.thumbnail" :alt="product.title" />
       </figure>
+      <!-- <figure class="image is-4by3">
+        <NuxtImage :src="product.thumbnail" :alt="product.title" />      
+      </figure> -->
     </div>
     <div class="card-content">
       <div class="media">
