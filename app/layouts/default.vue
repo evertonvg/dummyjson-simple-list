@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import { navigateTo } from '#app'
-import { ref, onMounted } from 'vue'
+import { useAuthStore } from '@/stores/auth'
 
-const isLogged = ref(false)
+const auth = useAuthStore()
 
-onMounted(() => {
-  isLogged.value = !!localStorage.getItem('token')
-})
 
 const logout = () => {
   if (process.client) {
-    localStorage.removeItem('token')
+    auth.logout()
     navigateTo('/')
   }
 }
@@ -24,8 +21,9 @@ const logout = () => {
       </div>
 
       <div class="navbar-end">
+        <p v-if="auth.isLoggedIn" class="navbar-item">Bem-vindo, {{ auth.user }}</p>
         <div class="navbar-item">
-          <button class="button is-light" @click="logout" v-if="isLogged">
+          <button class="button is-light" @click="logout" v-if="auth.isLoggedIn">
             Logout
           </button>
         </div>

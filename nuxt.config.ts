@@ -7,5 +7,8 @@ export default defineNuxtConfig({
   pages: true,
   alias: {
     '@': fileURLToPath(new URL('./app', import.meta.url))
-  }
+  },
+  modules: [
+    '@pinia/nuxt',
+  ],
 })

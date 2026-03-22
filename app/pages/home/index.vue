@@ -19,18 +19,14 @@ const { data, isLoading } = useQuery({
 
       <p v-if="isLoading">Carregando...</p>
 
-      <div v-else class="columns is-multiline">
-        <div
-          v-for="product in data?.products"
-          :key="product.id"
-          class="column is-4"
-        >
-          <div class="box">
-            <strong>{{ product.title }}</strong>
-            <p>{{ product.description }}</p>
-          </div>
-        </div>
+      <section v-else  class="section">
+      <div class="container">
+        <h1 class="title">Produtos</h1>
+        <ProductGrid :products="data?.products" />
       </div>
+    </section>
+
+
     </div>
   </section>
 </template>

@@ -1,9 +1,12 @@
-export default defineNuxtRouteMiddleware(() => {
-    if (process.client) {
-        const token = localStorage.getItem('token')
+// middleware/auth.ts
+import { useAuthStore } from '@/stores/auth'
 
-        if (!token) {
-            return navigateTo('/')
-        }
+export default defineNuxtRouteMiddleware((to, from) => {
+    const auth = useAuthStore()
+    console.warn(auth.isLoggedIn)
+
+    // se não estiver logado, redireciona para login
+    if (!auth.isLoggedIn) {
+        return navigateTo('/')
     }
 })

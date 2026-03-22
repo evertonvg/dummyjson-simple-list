@@ -5,6 +5,7 @@ import { loginRequest } from '@/services/auth'
 import { toast } from 'vue-sonner'
 import { z } from 'zod'
 import { navigateTo } from '#app'
+import { useAuthStore } from '@/stores/auth'
 
 definePageMeta({
   middleware: 'guest'
@@ -25,8 +26,8 @@ const loginSchema = z.object({
 const username = ref('')
 const password = ref('')
 const errors = ref<{ username?: string; password?: string }>({})
-
 const token = useCookie('token')
+const auth = useAuthStore()
 
 // 🧹 Limpa erro ao digitar
 watch(username, () => (errors.value.username = ''))
@@ -60,15 +61,14 @@ const { mutate, isPending } = useMutation({
   mutationFn: loginRequest,
 
   onSuccess(data: any) {
-    localStorage.setItem('token', data.token)
-    token.value = data.token
-
+    auth.login(username.value, data.accessToken)
+    console.warn(data)
     toast.success('Login realizado com sucesso! 🎉')
-
     navigateTo('/home')
   },
 
-  onError() {
+  onError(error) {
+    console.error(error)
     toast.error('Falha no login. Por favor, tente novamente.')
   }
 })
