@@ -1,60 +1,101 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getProductRequest } from '@/services/getProduct'
 import type { ProductResponse } from '@/types/product'
-
-// definePageMeta({
-//   middleware: 'auth'
-// })
 
 const route = useRoute()
 const router = useRouter()
 const mainImage = ref('')
 
-// SSR: Carrega o produto antes de renderizar a página
-const { data: product, pending: isLoading, refresh } = await useAsyncData<ProductResponse>(
+// 1. SSR: Busca os dados no servidor antes da página carregar
+const { data: product, pending: isLoading } = await useAsyncData<ProductResponse>(
   `product-${route.params.id}`,
   () => getProductRequest(route.params.id as string)
 )
 
-// Atualiza mainImage quando os dados chegam
+// 2. Galeria: Define a imagem principal assim que o produto carrega
 watch(
   product,
   (p) => {
-    if (p && p.images?.length) mainImage.value = p.images[0] || ''
+    if (p && p.images?.length) mainImage.value = p.images[0]
   },
   { immediate: true }
 )
+
+// 3. SEO Dinâmico: Títulos e descrições reativas para Redes Sociais
+useSeoMeta({
+  title: () => `${product.value?.title ?? 'Carregando...'} - Dummy Json Tests`,
+  description: () => product.value?.description,
+  ogTitle: () => product.value?.title,
+  ogDescription: () => product.value?.description,
+  ogImage: () => mainImage.value || product.value?.thumbnail,
+  twitterCard: 'summary_large_image',
+})
+
+// 4. JSON-LD: Dados estruturados para o Google (Rich Snippets)
+useHead({
+  script: [
+    {
+      type: 'application/ld+json',
+      children: computed(() => JSON.stringify({
+        '@context': 'https://schema.org/',
+        '@type': 'Product',
+        name: product.value?.title,
+        image: product.value?.images,
+        description: product.value?.description,
+        brand: { '@type': 'Brand', name: product.value?.brand },
+        offers: {
+          '@type': 'Offer',
+          price: product.value?.price,
+          priceCurrency: 'USD',
+          availability: product.value?.stock && product.value.stock > 0 
+            ? 'https://schema.org/InStock' 
+            : 'https://schema.org/OutOfStock',
+        },
+        aggregateRating: {
+          '@type': 'AggregateRating',
+          ratingValue: product.value?.rating,
+          reviewCount: product.value?.reviews?.length
+        }
+      }))
+    }
+  ]
+})
 </script>
 
 <template>
   <section class="section mt-6" v-if="isLoading">
-    <div class="container">
-      <h2>Carregando...</h2>
+    <div class="container has-text-centered">
+      <h2 class="subtitle">Carregando detalhes do produto...</h2>
     </div>
   </section>
 
-  <section class="section mt-6" v-else>
+  <section class="section mt-6" v-else-if="product">
     <div class="container">
-      <!-- Voltar -->
+      <nav class="breadcrumb mb-4" aria-label="breadcrumbs">
+        <ul>
+          <li><NuxtLink to="/home">Produtos</NuxtLink></li>
+          <li class="is-active"><a href="#" aria-current="page">{{ product.title }}</a></li>
+        </ul>
+      </nav>
+
       <button class="button is-light mb-4" @click="router.back()">← Voltar</button>
 
       <div class="columns">
-        <!-- Coluna da imagem -->
         <div class="column is-half">
           <figure class="image is-4by3 mb-4">
-            <img :src="mainImage" :alt="product?.title" class="product-main-image" />
+            <img :src="mainImage" :alt="product.title" class="product-main-image" />
           </figure>
 
-          <!-- Miniaturas -->
           <div class="columns is-mobile is-multiline">
-            <div class="column is-3" v-for="img in product?.images" :key="img">
+            <div class="column is-3" v-for="img in product.images" :key="img">
               <figure class="image is-square">
                 <img
                   :src="img"
-                  :alt="product?.title"
+                  :alt="`Miniatura ${product.title}`"
                   class="thumbnail"
+                  :class="{ 'is-active-thumb': mainImage === img }"
                   @click="mainImage = img"
                 />
               </figure>
@@ -62,65 +103,56 @@ watch(
           </div>
         </div>
 
-        <!-- Coluna de informações -->
         <div class="column is-half">
-          <h1 class="title is-3">{{ product?.title }}</h1>
-          <h2 class="subtitle is-5">{{ product?.brand }}</h2>
+          <h1 class="title is-3">{{ product.title }}</h1>
+          <p class="subtitle is-5 has-text-grey">{{ product.brand }}</p>
 
-          <!-- Preço -->
-          <p class="is-size-4 has-text-weight-bold">
-            ${{ product?.price.toFixed(2) }}
-            <span
-              v-if="product?.discountPercentage"
-              class="tag is-danger is-light ml-2"
-            >
-              -{{ product?.discountPercentage.toFixed(0) }}%
+          <div class="is-flex is-align-items-center mb-4">
+            <p class="is-size-3 has-text-weight-bold">
+              ${{ product.price.toFixed(2) }}
+            </p>
+            <span v-if="product.discountPercentage" class="tag is-danger is-light ml-3">
+              -{{ product.discountPercentage.toFixed(0) }}% OFF
             </span>
-          </p>
-
-          <!-- Avaliação -->
-          <p class="mb-3">
-            <span v-for="n in 5" :key="n" class="has-text-warning">
-              <i class="fas" :class="n <= Math.round(product?.rating ?? 0) ? 'fa-star' : 'fa-star-o'"></i>
-            </span>
-            <span class="ml-2">({{ product?.reviews.length }} avaliações)</span>
-          </p>
-
-          <!-- Estoque, envio e garantia -->
-          <div class="box mb-4">
-            <p><strong>Status:</strong> {{ product?.availabilityStatus }}</p>
-            <p><strong>Stock:</strong> {{ product?.stock }}</p>
-            <p><strong>Garantia:</strong> {{ product?.warrantyInformation }}</p>
-            <p><strong>Envio:</strong> {{ product?.shippingInformation }}</p>
           </div>
 
-          <!-- Botões -->
+          <div class="mb-4">
+            <span v-for="n in 5" :key="n" class="has-text-warning mr-1">
+              <i class="fa" :class="n <= Math.round(product.rating) ? 'fa-star' : 'fa-star-o'"></i>
+            </span>
+            <span class="has-text-grey">({{ product.reviews.length }} avaliações)</span>
+          </div>
+
+          <div class="notification is-light">
+            <p><strong>Disponibilidade:</strong> {{ product.availabilityStatus }} ({{ product.stock }} unidades)</p>
+            <p><strong>Garantia:</strong> {{ product.warrantyInformation }}</p>
+          </div>
+
           <div class="buttons">
-            <button class="button is-primary is-large">Comprar agora</button>
-            <button class="button is-warning is-large">Adicionar ao carrinho</button>
+            <button class="button is-primary is-large is-fullwidth">Comprar agora</button>
+            <button class="button is-warning is-large is-fullwidth">Adicionar ao carrinho</button>
           </div>
         </div>
       </div>
 
-      <!-- Descrição -->
-      <div class="mt-6">
-        <h3 class="title is-5">Descrição do Produto</h3>
-        <p>{{ product?.description }}</p>
+      <hr />
+
+      <div class="content">
+        <h3 class="title is-4">Descrição</h3>
+        <p>{{ product.description }}</p>
       </div>
 
-      <!-- Reviews -->
       <div class="mt-6">
-        <h3 class="title is-5">Avaliações</h3>
-        <div v-for="review in product?.reviews" :key="review.reviewerEmail" class="box">
-          <p>
+        <h3 class="title is-4">O que os clientes dizem</h3>
+        <div v-for="review in product.reviews" :key="review.reviewerEmail" class="box">
+          <div class="is-flex is-justify-content-between">
             <strong>{{ review.reviewerName }}</strong>
-            <span class="ml-2">
-              <span v-for="n in 5" :key="n" class="has-text-warning">
-                <i class="fas" :class="n <= review.rating ? 'fa-star' : 'fa-star-o'"></i>
-              </span>
+            <span class="has-text-warning">
+              <i v-for="n in 5" :key="n" class="fa" :class="n <= review.rating ? 'fa-star' : 'fa-star-o'"></i>
             </span>
-          </p>
-          <p>{{ review.comment }}</p>
+          </div>
+          <p class="is-italic mt-2">"{{ review.comment }}"</p>
+          <p class="is-size-7 has-text-grey">{{ new Date(review.date).toLocaleDateString() }}</p>
         </div>
       </div>
     </div>
@@ -129,23 +161,30 @@ watch(
 
 <style scoped>
 .product-main-image {
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  border: 1px solid #dbdbdb;
+  border-radius: 8px;
+  object-fit: contain;
+  background: #fff;
 }
 
 .thumbnail {
   cursor: pointer;
-  border: 1px solid #eee;
+  border: 2px solid transparent;
   border-radius: 4px;
-  transition: transform 0.15s, border-color 0.15s;
+  transition: all 0.2s;
+  object-fit: cover;
 }
 
 .thumbnail:hover {
-  transform: scale(1.1);
-  border-color: #999;
+  transform: translateY(-3px);
+  border-color: #3273dc;
 }
 
-.box p {
-  margin-bottom: 0.3rem;
+.is-active-thumb {
+  border-color: #3273dc;
+}
+
+.breadcrumb {
+  font-size: 0.9rem;
 }
 </style>

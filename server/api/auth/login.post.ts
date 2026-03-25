@@ -5,19 +5,35 @@ export default defineEventHandler(async (event) => {
 
   const { username, password } = body
 
-  if (username === 'admin' && password === 'senha123') {
-    return {
-      accessToken: FAKE_TOKEN,
-      user: {
-        id: 1,
-        username: 'admin',
-        name: 'Administrador'
-      }
-    }
+  const isValid = username === 'admin' && password === 'senha123' // Simulação
+
+  if (!isValid){
+    throw createError({
+      statusCode: 401,
+      message: 'Usuário ou senha inválidos'
+    })
   }
 
-  throw createError({
-    statusCode: 401,
-    message: 'Usuário ou senha inválidos'
+  await setUserSession(event, {
+    user: {
+      username: username,
+      role: 'admin',
+      token: FAKE_TOKEN // Opcional: guarde o token se precisar dele para chamadas externas
+    },
+    loggedInAt: new Date()
   })
+
+  
+  return {
+    accessToken: FAKE_TOKEN,
+    message: 'Login realizado com sucesso',
+    user: {
+      id: 1,
+      username: 'admin',
+      name: 'Administrador'
+    }
+  }
+  
+
+  
 })

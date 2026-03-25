@@ -1,4 +1,4 @@
-export const products = Array.from({ length: 36 }).map((_, i) => ({
+export const products = Array.from({ length: 42 }).map((_, i) => ({
   id: i + 1,
   title: `Produto ${i + 1}`,
   description: `Descrição do produto ${i + 1}`,

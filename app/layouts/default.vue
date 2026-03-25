@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { navigateTo } from '#app'
-// const { status, signOut, data } = useAuth()
+import { toast } from 'vue-sonner'
+
+const { user, loggedIn, clear } = useUserSession()
 
 const handleLogout = async () => {
-  // await signOut({
-  //   redirect: true,
-  //   callbackUrl: '/'
-  // })
-  
+  await clear() // Isso deleta o cookie de sessão no servidor e limpa o estado no cliente
+  toast.info('Sessão encerrada.')
+  await navigateTo('/') // Redireciona para o login
 }
 
 </script>
@@ -20,11 +20,11 @@ const handleLogout = async () => {
       </div>
 
       <div class="navbar-end">
-        <!-- <p v-if="status === 'authenticated'" class="navbar-item">Bem-vindo, {{ data.username }}</p> -->
+        <p v-if="loggedIn" class="navbar-item">Bem-vindo, {{ user?.username }}</p>
         <div class="navbar-item">
-          <!-- <button class="button is-light" @click="handleLogout" v-if="status === 'authenticated'">
+          <button class="button is-light" @click="handleLogout" v-if="loggedIn">
             Logout
-          </button> -->
+          </button>
         </div>
       </div>
     </nav>
