@@ -1,31 +1,30 @@
 <script setup lang="ts">
 import { navigateTo } from '#app'
-import { useAuthStore } from '@/stores/auth'
+// const { status, signOut, data } = useAuth()
 
-const auth = useAuthStore()
-
-
-const logout = () => {
-  if (process.client) {
-    auth.logout()
-    navigateTo('/')
-  }
+const handleLogout = async () => {
+  // await signOut({
+  //   redirect: true,
+  //   callbackUrl: '/'
+  // })
+  
 }
+
 </script>
 
 <template>
   <main class="layout">
-    <nav class="navbar is-dark">
+    <nav class="navbar is-dark is-fixed-top" role="navigation" aria-label="main navigation">
       <div class="navbar-brand">
         <span class="navbar-item">Dummy Json Tests</span>
       </div>
 
       <div class="navbar-end">
-        <p v-if="auth.isLoggedIn" class="navbar-item">Bem-vindo, {{ auth.user }}</p>
+        <!-- <p v-if="status === 'authenticated'" class="navbar-item">Bem-vindo, {{ data.username }}</p> -->
         <div class="navbar-item">
-          <button class="button is-light" @click="logout" v-if="auth.isLoggedIn">
+          <!-- <button class="button is-light" @click="handleLogout" v-if="status === 'authenticated'">
             Logout
-          </button>
+          </button> -->
         </div>
       </div>
     </nav>

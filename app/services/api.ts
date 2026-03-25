@@ -1,16 +1,18 @@
-export const api = $fetch.create({
-    baseURL: 'https://dummyjson.com',
+export const useApi = () => {
+  const { token } = useAuth()
 
-    onRequest({ options }) {
-        if (process.client) {
-            const token = localStorage.getItem('token')
+  const api = $fetch.create({
+    baseURL: '/api',
 
-            if (token) {
-                options.headers = {
-                    ...options.headers,
-                    Authorization: `Bearer ${token}`
-                }
-            }
+    async onRequest({ options }) {
+      if (token.value) {
+        options.headers = {
+          ...options.headers,
+          Authorization: `${token.value}`
         }
+      }
     }
-})
+  })
+
+  return api
+}

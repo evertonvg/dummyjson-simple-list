@@ -17,7 +17,8 @@
   ],
   "compilerOptions": {
     "types": [
-      "node"
+      "node",
+      "@sidebase/nuxt-auth",
     ],
     "paths": {
       "@/*": [

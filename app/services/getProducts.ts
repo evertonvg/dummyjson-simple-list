@@ -1,8 +1,17 @@
-import { api } from './api'
+import { useApi } from './api'
 import type { ProductsResponse } from '@/types/products'
 
-export const getProductsRequest = async (limit: number, skip: number): Promise<ProductsResponse> => {
-    return api(`/products?limit=${limit}&skip=${skip}`, {
-        method: 'GET'
-    })
+export const getProductsRequest = async (
+  limit: number,
+  skip: number
+): Promise<ProductsResponse> => {
+  const api = useApi()
+
+  return api('/products', {
+    method: 'GET',
+    params: {
+      limit,
+      skip
+    }
+  })
 }

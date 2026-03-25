@@ -28,16 +28,16 @@
         <div class="column">
           <p class="title is-6">Siga-nos</p>
           <div class="buttons">
-            <a class="button is-light" href="#" aria-label="Facebook">
-              <span class="icon"><i class="fab fa-facebook-f"></i></span>
+            <a class="button is-dark" href="#" aria-label="Facebook">
+              <span class="icon"><i class="fab fa-facebook-f is-light"></i></span>
             </a>
-            <a class="button is-light" href="#" aria-label="Instagram">
+            <a class="button is-dark" href="#" aria-label="Instagram">
               <span class="icon"><i class="fab fa-instagram"></i></span>
             </a>
-            <a class="button is-light" href="#" aria-label="Twitter">
+            <a class="button is-dark" href="#" aria-label="Twitter">
               <span class="icon"><i class="fab fa-twitter"></i></span>
             </a>
-            <a class="button is-light" href="#" aria-label="LinkedIn">
+            <a class="button is-dark" href="#" aria-label="LinkedIn">
               <span class="icon"><i class="fab fa-linkedin-in"></i></span>
             </a>
           </div>
