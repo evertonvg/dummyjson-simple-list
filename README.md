@@ -1,75 +1,85 @@
-# Nuxt Minimal Starter
+# dummyjson-simple-list
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Projeto Nuxt 4 + Pinia + Vue Query + API interna simulada com dados DummyJSON.
 
-## Setup
+## Descrição
 
-Make sure to install dependencies:
+Aplicação de exemplo com login e catálogo de produtos paginado. Inclui:
+- Autenticação simples (login/admin)
+- Rotas protegidas usando middleware global
+- Endpoint /api/products para listagem paginada
+- Endpoint /api/products/:id para detalhes de produto
+- API local em server/api e dados fake em server/data/products.ts
+- UI com componentes e skeleton loading
 
-```bash
-# npm
-npm install
+## Funcionalidades
 
-# pnpm
-pnpm install
+- GET /home (lista de produtos com paginação)
+- GET /products/[id] (detalhes de produto)
+- POST /auth/login (login com dmin/senha123)
+- GET /auth/me (perfil do usuário autenticado)
+- Proteção de API via header Authorization: Bearer fake-jwt-token-123
 
-# yarn
-yarn install
+## Usuário de teste
 
-# bun
-bun install
-```
+- Usuário: dmin
+- Senha: senha123
+- Token retornado: ake-jwt-token-123
 
-## Development Server
+## Instalação
 
-Start the development server on `http://localhost:3000`:
 
-```bash
-# npm
-npm run dev
 
-# pnpm
-pnpm dev
+## Desenvolvimento
 
-# yarn
-yarn dev
 
-# bun
-bun run dev
-```
 
-## Production
+Acesse: http://localhost:3000.
 
-Build the application for production:
+## Scripts
 
-```bash
-# npm
-npm run build
+- 
+pm run dev - começa o servidor em modo dev
+- 
+pm run build - build para produção
+- 
+pm run preview - preview do build
+- 
+pm run generate - gerar site estático
 
-# pnpm
-pnpm build
+## Estrutura do projeto
 
-# yarn
-yarn build
+- pp/pages/index.vue - login
+- pp/pages/home/index.vue - listagem de produtos com paginação
+- pp/pages/products/[id].vue - detalhes de produto
+- pp/components/ - componentes UI
+- pp/services/api.ts - wrapper  com cabeçalhos auth
+- pp/services/getProducts.ts - chamada listagem
+- pp/services/getProduct.ts - chamada detalhe
+- pp/services/auth.ts - chamada login
+- server/api/auth/login.post.ts - valida dmin/senha123
+- server/api/auth/me.get.ts - info do usuário
+- server/api/products/index.get.ts - lista produtos com limit e skip
+- server/api/products/[id].get.ts - produto por ID
+- server/utils/auth.ts - validação do token
 
-# bun
-bun run build
-```
+## Middleware
 
-Locally preview production build:
+- pp/middleware/auth.global.ts - redireciona para / se não autenticado
 
-```bash
-# npm
-npm run preview
+## Dependências principais
 
-# pnpm
-pnpm preview
+- 
+uxt >=4
+- @tanstack/vue-query
+- pinia
+- @sidebase/nuxt-auth (configuração básica de sessão)
+- ulma (estilos)
+- ue-sonner (toasts)
 
-# yarn
-yarn preview
+## Observações
 
-# bun
-bun run preview
-```
+- Ajuste 
+uxt.config.ts se necessário para deploy custom
+- Use server/data/products.ts como fonte de exemplo; substitua com DB real em produção
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
