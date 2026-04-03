@@ -3,4 +3,5 @@ export interface Review {
     comment: string
     reviewerName: string
     reviewerEmail: string
+    date: string
 }

@@ -18,7 +18,7 @@ const { data: product, pending: isLoading } = await useAsyncData<ProductResponse
 watch(
   product,
   (p) => {
-    if (p && p.images?.length) mainImage.value = p.images[0]
+    if (p && p.images?.length) mainImage.value = p.images[0] ?? ''
   },
   { immediate: true }
 )
@@ -38,7 +38,7 @@ useHead({
   script: [
     {
       type: 'application/ld+json',
-      children: computed(() => JSON.stringify({
+      innerHTML: computed(() => JSON.stringify({
         '@context': 'https://schema.org/',
         '@type': 'Product',
         name: product.value?.title,
@@ -49,8 +49,8 @@ useHead({
           '@type': 'Offer',
           price: product.value?.price,
           priceCurrency: 'USD',
-          availability: product.value?.stock && product.value.stock > 0 
-            ? 'https://schema.org/InStock' 
+          availability: product.value?.stock && product.value.stock > 0
+            ? 'https://schema.org/InStock'
             : 'https://schema.org/OutOfStock',
         },
         aggregateRating: {
